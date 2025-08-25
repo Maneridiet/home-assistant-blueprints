@@ -1,71 +1,40 @@
-# Home Assistant Blueprint – Coffee Machine / Kaffeemaschine Reminder (iOS interactive)
+# Maneridiet's Home Assistant Blueprints
 
-This repository provides a Home Assistant blueprint that monitors a switch (e.g. coffee machine).  
-If the switch stays on longer than a defined time (default: **40 minutes**), an **interactive iOS notification** is sent.  
-
-You can choose directly in the notification:  
-- **Keep On** / **An lassen**  
-- **Turn Off** / **Ausschalten**  
-
-If no response is received within the answer window (default: **5 minutes**), the switch will be turned off automatically.  
-In all cases, the notification will be cleared afterwards.
+A growing collection of reusable [Home Assistant](https://www.home-assistant.io) blueprints (automations).  
+All blueprints are importable with a single click via the **Home Assistant Blueprint Import** feature.
 
 ---
 
-## 📥 Import
+## 📥 How to use
 
-### 🇩🇪 Deutsch
-[![Import Blueprint DE](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_de.yaml)
+1. Click the **Import Blueprint** badge below each automation.  
+2. Home Assistant will open and let you review the blueprint before saving.  
+3. Create an automation from the imported blueprint and customize the inputs.  
 
-### 🇬🇧 English
-[![Import Blueprint EN](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_en.yaml)
-
-Or import manually in Home Assistant:  
-**Settings → Automations & Scenes → Blueprints → Import Blueprint**  
-and paste one of the RAW URLs above.
+> Each blueprint has its own description, inputs, and changelog.  
+> For support and discussion, check the linked [Community Forum](https://community.home-assistant.io/c/blueprints-exchange/53).
 
 ---
 
-## ⚙️ Inputs
+## ☕ Coffee Machine Reminder (iOS interactive)
 
-- **Switch (Schalter)** → The device to monitor and (if required) turn off.  
-- **Runtime until reminder (Laufzeit bis Erinnerung)** → Default 40 minutes.  
-- **Response timeout (Antwort-Zeitfenster)** → Default 5 minutes.  
-- **Target devices (Zielgeräte)** → One or more iOS devices with HA Companion App.  
-- **Notification tag (Benachrichtigungs-Tag)** → Identifier to clear the notification (default: `coffee_prompt`).  
-- **Titles & messages (Titel & Texte)** → Fully customizable for reminder, auto-off and buttons.  
+**Languages:** 🇩🇪 Deutsch · 🇬🇧 English  
+**Description:** Sends an interactive iOS push if the coffee machine has been on too long. Choose *Keep On* or *Turn Off*. Auto-off after timeout.
 
----
-
-## ✨ Features
-
-- Interactive **iOS push notification** with action buttons  
-- iOS **time-sensitive** push (works harmlessly on Android)  
-- Automatic clearing of notifications in all cases  
-- Automatic turn-off after timeout if no response  
-- Multiple devices supported  
-- Uses `mobile_app` device notifications (no hard-coded `notify.mobile_app_*` service names)  
+- [![Import DE](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_de.yaml)  
+- [![Import EN](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_en.yaml)  
 
 ---
 
-## 📝 Example Flow
+## 📖 Changelog
 
-1. Coffee machine is turned on at 07:00.  
-2. At 07:40 → Notification:  
-   **“Coffee machine has been running for 40 minutes”**  
-   Buttons: **Keep On** / **Turn Off**  
-3. If you choose **Turn Off** → switch turns off immediately.  
-4. If no answer until 07:45 → Auto-off + push:  
-   **“No response – turned off automatically.”**
+See [CHANGELOG.md](./CHANGELOG.md) for version history of each blueprint.  
+Each YAML file is versioned in its header and linked to a corresponding forum post.
 
 ---
 
-## 📌 Changelog
+## 📜 License
 
-- **v1.0.0** – Initial release (DE + EN)
+This repository is licensed under the [MIT License](./LICENSE).  
+You are free to use, share, and adapt the blueprints with attribution.
 
----
-
-## 📖 License
-
-[MIT License](./LICENSE)
