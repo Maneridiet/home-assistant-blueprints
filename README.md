@@ -9,9 +9,18 @@ In allen Fällen wird die Benachrichtigung anschließend wieder entfernt.
 
 ---
 
-## Importieren
+## Import
 
-[![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios.yaml)
+### Deutsch
+[![Import Blueprint (DE)](https://my.home-assistant.io/badges/blueprint_import.svg)](
+https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_de.yaml
+)
+
+### English
+[![Import Blueprint (EN)](https://my.home-assistant.io/badges/blueprint_import.svg)](
+https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_en.yaml
+)
+
 
 Oder in Home Assistant:  
 **Einstellungen → Automatisierungen & Szenen → Blueprints → Importieren** und dort den RAW-Link einfügen:
