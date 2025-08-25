@@ -1,86 +1,71 @@
-# Home Assistant Blueprint – Kaffeemaschine Erinnerung (iOS interaktiv)
+# Home Assistant Blueprint – Coffee Machine / Kaffeemaschine Reminder (iOS interactive)
 
-Dieses Blueprint überwacht einen Schalter (z. B. Kaffeemaschine).  
-Wenn er länger als die eingestellte Zeit **eingeschaltet** bleibt (Standard: 40 Minuten), werden **interaktive iOS-Benachrichtigungen** verschickt.  
+This repository provides a Home Assistant blueprint that monitors a switch (e.g. coffee machine).  
+If the switch stays on longer than a defined time (default: **40 minutes**), an **interactive iOS notification** is sent.  
 
-Du kannst dann direkt in der Push-Nachricht auswählen: **An lassen** oder **Ausschalten**.  
-Reagierst du nicht innerhalb des eingestellten Zeitfensters (Standard: 5 Minuten), wird das Gerät automatisch ausgeschaltet.  
-In allen Fällen wird die Benachrichtigung anschließend wieder entfernt.
+You can choose directly in the notification:  
+- **Keep On** / **An lassen**  
+- **Turn Off** / **Ausschalten**  
 
----
-
-## Import
-
-### Deutsch
-[![Import Blueprint (DE)](https://my.home-assistant.io/badges/blueprint_import.svg)](
-https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_de.yaml
-)
-
-### English
-[![Import Blueprint (EN)](https://my.home-assistant.io/badges/blueprint_import.svg)](
-https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_en.yaml
-)
-
-
-Oder in Home Assistant:  
-**Einstellungen → Automatisierungen & Szenen → Blueprints → Importieren** und dort den RAW-Link einfügen:
-
-https://raw.githubusercontent.com/Maneridiet/home-assistant-blueprints/master/blueprints/automation/Maneridiet/coffee_prompt_ios.yaml
+If no response is received within the answer window (default: **5 minutes**), the switch will be turned off automatically.  
+In all cases, the notification will be cleared afterwards.
 
 ---
 
-## Eingaben
+## 📥 Import
 
-- **Kaffeemaschinen-Schalter**  
-  Welcher Schalter überwacht/geschaltet wird.
+### 🇩🇪 Deutsch
+[![Import Blueprint DE](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_de.yaml)
 
-- **Laufzeit bis zur Erinnerung**  
-  Dauer, die der Schalter „an“ sein muss, bevor die Benachrichtigung ausgelöst wird.  
-  *Standard: 40 Minuten*
+### 🇬🇧 English
+[![Import Blueprint EN](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_en.yaml)
 
-- **Antwort-Zeitfenster**  
-  Zeit, die nach der Benachrichtigung auf eine Antwort gewartet wird.  
-  *Standard: 5 Minuten*
-
-- **Zielgeräte (iOS)**  
-  Ein oder mehrere iPhones/iPads mit Home Assistant Companion App.
-
-- **Benachrichtigungs-Tag**  
-  Kennung, um die Push später automatisch zu schließen.  
-  *Standard: `coffee_prompt`*
-
-- **Texte (Titel/Nachricht)**  
-  Anpassbar für Erinnerung, Auto-Off und die Schaltflächen *An lassen* / *Ausschalten*.
+Or import manually in Home Assistant:  
+**Settings → Automations & Scenes → Blueprints → Import Blueprint**  
+and paste one of the RAW URLs above.
 
 ---
 
-## Features
+## ⚙️ Inputs
 
-- iOS **Zeitkritische Benachrichtigung** (interruption-level: time-sensitive)  
-- Unterstützt mehrere iPhones/iPads gleichzeitig  
-- Automatische Aufräumung der Push-Nachrichten  
-- Automatisches Ausschalten bei Nicht-Reaktion  
-- Keine hartkodierten `notify.mobile_app_*` Services → funktioniert auch bei umbenannten Geräten  
-
----
-
-## Beispiel
-
-- Die Kaffeemaschine läuft um 7:00 Uhr los.  
-- Um 7:40 Uhr erscheint eine Push:  
-  **„Kaffeemaschine läuft seit 40 Minuten“**  
-  mit den Buttons **An lassen** / **Ausschalten**.  
-- Wählst du **Ausschalten**, wird der Schalter sofort aus gemacht.  
-- Keine Antwort bis 7:45 Uhr? → Auto-Off + Push „Keine Antwort – wurde automatisch ausgeschaltet“.
+- **Switch (Schalter)** → The device to monitor and (if required) turn off.  
+- **Runtime until reminder (Laufzeit bis Erinnerung)** → Default 40 minutes.  
+- **Response timeout (Antwort-Zeitfenster)** → Default 5 minutes.  
+- **Target devices (Zielgeräte)** → One or more iOS devices with HA Companion App.  
+- **Notification tag (Benachrichtigungs-Tag)** → Identifier to clear the notification (default: `coffee_prompt`).  
+- **Titles & messages (Titel & Texte)** → Fully customizable for reminder, auto-off and buttons.  
 
 ---
 
-## Changelog
+## ✨ Features
 
-- **v1.0.0** – Erste Veröffentlichung
+- Interactive **iOS push notification** with action buttons  
+- iOS **time-sensitive** push (works harmlessly on Android)  
+- Automatic clearing of notifications in all cases  
+- Automatic turn-off after timeout if no response  
+- Multiple devices supported  
+- Uses `mobile_app` device notifications (no hard-coded `notify.mobile_app_*` service names)  
 
 ---
 
-## Lizenz
+## 📝 Example Flow
+
+1. Coffee machine is turned on at 07:00.  
+2. At 07:40 → Notification:  
+   **“Coffee machine has been running for 40 minutes”**  
+   Buttons: **Keep On** / **Turn Off**  
+3. If you choose **Turn Off** → switch turns off immediately.  
+4. If no answer until 07:45 → Auto-off + push:  
+   **“No response – turned off automatically.”**
+
+---
+
+## 📌 Changelog
+
+- **v1.0.0** – Initial release (DE + EN)
+
+---
+
+## 📖 License
 
 [MIT License](./LICENSE)

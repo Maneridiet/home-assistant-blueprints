@@ -14,28 +14,28 @@ blueprint:
 input:
   coffee_switch:
     name: Kaffeemaschinen-Schalter
-    description: Der Schalter, der überwacht und bei Bedarf ausgeschaltet werden soll.
+    description: "Der Schalter, der überwacht und bei Bedarf ausgeschaltet werden soll."
     selector:
       entity:
         domain: switch
 
   run_time:
     name: Laufzeit bis zur Erinnerung
-    description: Zeitdauer, die der Schalter eingeschaltet sein muss, bevor eine Benachrichtigung gesendet wird.
+    description: "Zeitdauer, die der Schalter eingeschaltet sein muss, bevor eine Benachrichtigung gesendet wird."
     default: "00:40:00"
     selector:
       duration: {}
 
   response_timeout:
     name: Antwort-Zeitfenster
-    description: Zeitspanne, die nach der Benachrichtigung auf eine Antwort gewartet wird, bevor automatisch ausgeschaltet wird.
+    description: "Zeitspanne, die nach der Benachrichtigung auf eine Antwort gewartet wird, bevor automatisch ausgeschaltet wird."
     default: "00:05:00"
     selector:
       duration: {}
 
   notify_devices:
     name: Zielgeräte (iOS)
-    description: Ein oder mehrere iPhones oder iPads mit Home Assistant Companion App, die die Push-Benachrichtigung erhalten sollen.
+    description: "Ein oder mehrere iPhones oder iPads mit Home Assistant Companion App, die die Push-Benachrichtigung erhalten sollen."
     selector:
       device:
         multiple: true
@@ -44,50 +44,50 @@ input:
 
   notification_tag:
     name: Benachrichtigungs-Tag
-    description: Kennung, mit der die Benachrichtigung später automatisch entfernt wird. Standard ist coffee_prompt.
-    default: coffee_prompt
+    description: "Kennung, mit der die Benachrichtigung später automatisch entfernt wird. Standard ist coffee_prompt."
+    default: "coffee_prompt"
     selector:
       text: {}
 
   title_running:
     name: Titel – Erinnerung
-    description: Überschrift der Benachrichtigung, wenn die Kaffeemaschine lange läuft.
-    default: Kaffeemaschine läuft seit 40 Minuten
+    description: "Überschrift der Benachrichtigung, wenn die Kaffeemaschine lange läuft."
+    default: "Kaffeemaschine läuft seit 40 Minuten"
     selector:
       text: {}
 
   message_running:
     name: Text – Erinnerung
-    description: Nachrichtentext der Benachrichtigung. Beispiel: Zum Auswählen lange drücken: An lassen oder Ausschalten.
-    default: Zum Auswählen lange drücken: An lassen oder Ausschalten
+    description: "Nachrichtentext der Benachrichtigung. Beispiel: Zum Auswählen lange drücken: An lassen oder Ausschalten."
+    default: "Zum Auswählen lange drücken: An lassen oder Ausschalten"
     selector:
       text: {}
 
   title_auto_off:
     name: Titel – automatisch ausgeschaltet
-    description: Überschrift der Benachrichtigung, wenn das Gerät automatisch ausgeschaltet wurde.
-    default: Kaffeemaschine ausgeschaltet
+    description: "Überschrift der Benachrichtigung, wenn das Gerät automatisch ausgeschaltet wurde."
+    default: "Kaffeemaschine ausgeschaltet"
     selector:
       text: {}
 
   message_auto_off:
     name: Text – automatisch ausgeschaltet
-    description: Nachrichtentext, wenn das Gerät wegen fehlender Antwort ausgeschaltet wurde.
-    default: Keine Antwort nach 5 Minuten – wurde automatisch ausgeschaltet.
+    description: "Nachrichtentext, wenn das Gerät wegen fehlender Antwort ausgeschaltet wurde."
+    default: "Keine Antwort nach 5 Minuten – wurde automatisch ausgeschaltet."
     selector:
       text: {}
 
   keep_title:
     name: Aktionstext – An lassen
-    description: Beschriftung der Schaltfläche, um die Kaffeemaschine eingeschaltet zu lassen.
-    default: An lassen
+    description: "Beschriftung der Schaltfläche, um die Kaffeemaschine eingeschaltet zu lassen."
+    default: "An lassen"
     selector:
       text: {}
 
   off_title:
     name: Aktionstext – Ausschalten
-    description: Beschriftung der Schaltfläche, um die Kaffeemaschine auszuschalten.
-    default: Ausschalten
+    description: "Beschriftung der Schaltfläche, um die Kaffeemaschine auszuschalten."
+    default: "Ausschalten"
     selector:
       text: {}
 
