@@ -86,15 +86,15 @@ blueprint:
 mode: single
 max_exceeded: silent
 
-triggers:
-  - trigger: state
+trigger:
+  - platform: state
     entity_id: !input coffee_switch
     to: "on"
     for: !input run_time
 
-conditions: []
+condition: []
 
-actions:
+action:
   - repeat:
       for_each: !input notify_devices
       sequence:
@@ -114,15 +114,15 @@ actions:
                 title: !input off_title
 
   - wait_for_trigger:
-      - trigger: event
+      - platform: event
         event_type: mobile_app_notification_action
         event_data:
           action: KEEP
-      - trigger: event
+      - platform: event
         event_type: mobile_app_notification_action
         event_data:
           action: OFF
-      - trigger: state
+      - platform: state
         entity_id: !input coffee_switch
         to: "off"
     timeout: !input response_timeout
@@ -147,7 +147,7 @@ actions:
           - condition: template
             value_template: "{{ wait.trigger is not none and wait.trigger.platform == 'event' and wait.trigger.event.data.action == 'OFF' }}"
         sequence:
-          - action: switch.turn_off
+          - service: switch.turn_off
             target:
               entity_id: !input coffee_switch
           - repeat:
@@ -175,7 +175,7 @@ actions:
                     tag: !input notification_tag
 
     default:
-      - action: switch.turn_off
+      - service: switch.turn_off
         target:
           entity_id: !input coffee_switch
 
