@@ -1,213 +1,93 @@
 blueprint:
-  name: Kaffee-Maschine – Nach 40 Min fragen oder ausschalten (iOS, interaktiv)
+  name: Kaffeemaschine – Erinnerung nach Laufzeit (iOS interaktiv)
   description: >
-    Benachrichtigt nach einer Laufzeit (Standard 40 Min) und bietet iOS-Aktionen
-    „An lassen“ oder „Ausschalten“ an. Wartet auf Antwort oder
-    schaltet nach einem Timeout (Standard 5 Min) automatisch aus.
-    Benachrichtigungen werden in allen Fällen wieder entfernt.
+    Überwacht einen Schalter (z. B. Kaffeemaschine). 
+    Wenn er länger als die eingestellte Zeit eingeschaltet bleibt 
+    (Standard: 40 Minuten), werden interaktive iOS-Benachrichtigungen verschickt.  
+    Du kannst dann auswählen: **An lassen** oder **Ausschalten**.  
+    Reagierst du nicht, wird nach Ablauf der Antwortzeit (Standard: 5 Minuten) 
+    automatisch ausgeschaltet.  
+    In allen Fällen wird die Benachrichtigung anschließend aufgeräumt.
   domain: automation
   source_url: https://github.com/Maneridiet/home-assistant-blueprints#coffee-prompt
 
-  input:
-    coffee_switch:
-      name: Schalter der Kaffeemaschine
-      description: Der Switch, der überwacht/geschaltet wird.
-      selector:
-        entity:
-          domain: switch
+input:
+  coffee_switch:
+    name: Kaffeemaschinen-Schalter
+    description: Wähle den Schalter aus, der überwacht und ggf. automatisch ausgeschaltet werden soll.
+    selector:
+      entity:
+        domain: switch
 
-    run_time:
-      name: Laufzeit bis zur Nachfrage
-      description: Wie lange der Schalter „an“ sein muss, bevor gefragt wird.
-      default: "00:40:00"
-      selector:
-        duration: {}
+  run_time:
+    name: Laufzeit bis zur Erinnerung
+    description: Dauer, die der Schalter eingeschaltet sein muss, bevor die Benachrichtigung gesendet wird.
+    default: "00:40:00"
+    selector:
+      duration: {}
 
-    response_timeout:
-      name: Antwort-Timeout
-      description: Wie lange auf eine Antwort oder ein Ausschalten gewartet wird.
-      default: "00:05:00"
-      selector:
-        duration: {}
+  response_timeout:
+    name: Antwort-Zeitfenster
+    description: Wie lange nach der Benachrichtigung auf eine Antwort gewartet werden soll, bevor automatisch ausgeschaltet wird.
+    default: "00:05:00"
+    selector:
+      duration: {}
 
-    notify_devices:
-      name: Mobile App Geräte (iOS)
-      description: An welche iPhones/iPads die interaktive Push gehen soll.
-      selector:
-        device:
-          multiple: true
-          filter:
-            integration: mobile_app
+  notify_devices:
+    name: Zielgeräte (iOS)
+    description: Wähle ein oder mehrere iPhones/iPads (Home Assistant Companion App), an die die Push-Benachrichtigung gesendet wird.
+    selector:
+      device:
+        multiple: true
+        filter:
+          integration: mobile_app
 
-    notification_tag:
-      name: Notification-Tag
-      description: Wird zum gezielten Aufräumen der Benachrichtigung genutzt.
-      default: coffee_prompt
-      selector:
-        text: {}
+  notification_tag:
+    name: Benachrichtigungs-Tag
+    description: Kennung, mit der die Benachrichtigung später wieder geschlossen werden kann. Standard: `coffee_prompt`.
+    default: coffee_prompt
+    selector:
+      text: {}
 
-    title_running:
-      name: Titel – läuft
-      default: Kaffeemaschine läuft seit 40 Minuten
-      selector:
-        text: {}
+  title_running:
+    name: Titel – Erinnerung
+    description: Überschrift der Benachrichtigung, wenn die Kaffeemaschine lange läuft.
+    default: Kaffeemaschine läuft seit 40 Minuten
+    selector:
+      text: {}
 
-    message_running:
-      name: Nachricht – läuft
-      default: "Zum Auswählen lange drücken: An lassen oder Ausschalten"
-      selector:
-        text: {}
+  message_running:
+    name: Text – Erinnerung
+    description: Nachrichtentext der Benachrichtigung.  
+    Tipp: Erkläre, wie man die Aktion auswählt (z. B. „Zum Auswählen lange drücken“).
+    default: "Zum Auswählen lange drücken: An lassen oder Ausschalten"
+    selector:
+      text: {}
 
-    title_auto_off:
-      name: Titel – automatisch ausgeschaltet
-      default: Kaffeemaschine ausgeschaltet
-      selector:
-        text: {}
+  title_auto_off:
+    name: Titel – automatisch ausgeschaltet
+    description: Überschrift der Benachrichtigung, wenn automatisch ausgeschaltet wurde.
+    default: Kaffeemaschine ausgeschaltet
+    selector:
+      text: {}
 
-    message_auto_off:
-      name: Nachricht – automatisch ausgeschaltet
-      default: Keine Antwort nach 5 Minuten – wurde automatisch ausgeschaltet.
-      selector:
-        text: {}
+  message_auto_off:
+    name: Text – automatisch ausgeschaltet
+    description: Nachrichtentext, wenn automatisch ausgeschaltet wurde (z. B. nach Timeout).
+    default: Keine Antwort nach 5 Minuten – wurde automatisch ausgeschaltet.
+    selector:
+      text: {}
 
-    keep_title:
-      name: Aktionstitel – An lassen
-      default: An lassen
-      selector:
-        text: {}
+  keep_title:
+    name: Aktionstext – An lassen
+    description: Text für die Schaltfläche, um die Kaffeemaschine eingeschaltet zu lassen.
+    default: An lassen
+    selector:
+      text: {}
 
-    off_title:
-      name: Aktionstitel – Ausschalten
-      default: Ausschalten
-      selector:
-        text: {}
-
-mode: single
-max_exceeded: silent
-
-trigger:
-  - platform: state
-    entity_id: !input coffee_switch
-    to: "on"
-    for: !input run_time
-
-condition: []
-
-action:
-  # 1) Interaktive Benachrichtigungen an alle ausgewählten Geräte
-  - repeat:
-      for_each: !input notify_devices
-      sequence:
-        - device_id: "{{ repeat.item }}"
-          domain: mobile_app
-          type: notify
-          title: !input title_running
-          message: !input message_running
-          data:
-            tag: !input notification_tag
-            push:
-              interruption-level: time-sensitive
-            actions:
-              - action: KEEP
-                title: !input keep_title
-              - action: OFF
-                title: !input off_title
-
-  # 2) Warten auf Antwort/Abbruch/Selbstabschaltung
-  - wait_for_trigger:
-      - platform: event
-        event_type: mobile_app_notification_action
-        event_data:
-          action: KEEP
-      - platform: event
-        event_type: mobile_app_notification_action
-        event_data:
-          action: OFF
-      - platform: state
-        entity_id: !input coffee_switch
-        to: "off"
-    timeout: !input response_timeout
-    continue_on_timeout: true
-
-  # 3) Auswerten & handeln
-  - choose:
-      # a) Nutzer hat „An lassen“ gewählt → nur aufräumen
-      - conditions:
-          - condition: template
-            value_template: >
-              {{ wait.trigger is not none and
-                 wait.trigger.platform == 'event' and
-                 wait.trigger.event.data.action == 'KEEP' }}
-        sequence:
-          - repeat:
-              for_each: !input notify_devices
-              sequence:
-                - device_id: "{{ repeat.item }}"
-                  domain: mobile_app
-                  type: notify
-                  message: clear_notification
-                  data:
-                    tag: !input notification_tag
-
-      # b) Nutzer hat „Ausschalten“ gewählt → ausschalten + aufräumen
-      - conditions:
-          - condition: template
-            value_template: >
-              {{ wait.trigger is not none and
-                 wait.trigger.platform == 'event' and
-                 wait.trigger.event.data.action == 'OFF' }}
-        sequence:
-          - service: switch.turn_off
-            target:
-              entity_id: !input coffee_switch
-          - repeat:
-              for_each: !input notify_devices
-              sequence:
-                - device_id: "{{ repeat.item }}"
-                  domain: mobile_app
-                  type: notify
-                  message: clear_notification
-                  data:
-                    tag: !input notification_tag
-
-      # c) Schalter wurde manuell ausgeschaltet → nur aufräumen
-      - conditions:
-          - condition: template
-            value_template: >
-              {{ wait.trigger is not none and
-                 wait.trigger.platform == 'state' }}
-        sequence:
-          - repeat:
-              for_each: !input notify_devices
-              sequence:
-                - device_id: "{{ repeat.item }}"
-                  domain: mobile_app
-                  type: notify
-                  message: clear_notification
-                  data:
-                    tag: !input notification_tag
-
-    # d) Timeout ohne Antwort → ausschalten, aufräumen, Info schicken
-    default:
-      - service: switch.turn_off
-        target:
-          entity_id: !input coffee_switch
-
-      - repeat:
-          for_each: !input notify_devices
-          sequence:
-            - device_id: "{{ repeat.item }}"
-              domain: mobile_app
-              type: notify
-              message: clear_notification
-              data:
-                tag: !input notification_tag
-
-      - repeat:
-          for_each: !input notify_devices
-          sequence:
-            - device_id: "{{ repeat.item }}"
-              domain: mobile_app
-              type: notify
-              title: !input title_auto_off
-              message: !input message_auto_off
+  off_title:
+    name: Aktionstext – Ausschalten
+    description: Text für die Schaltfläche, um die Kaffeemaschine auszuschalten.
+    default: Ausschalten
+    selector:
+      text: {}
