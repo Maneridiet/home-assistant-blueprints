@@ -95,23 +95,22 @@ trigger:
 condition: []
 
 action:
-  - repeat:
-      for_each: !input notify_devices
-      sequence:
-        - device_id: "{{ repeat.item }}"
-          domain: mobile_app
-          type: notify
-          title: !input title_running
-          message: !input message_running
-          data:
-            tag: !input notification_tag
-            push:
-              interruption-level: time-sensitive
-            actions:
-              - action: KEEP
-                title: !input keep_title
-              - action: OFF
-                title: !input off_title
+  # 1) Interactive notification to all selected devices (without repeat, without templates)
+  - service: notify.mobile_app
+    target:
+      device_id: !input notify_devices
+    data:
+      title: !input title_running
+      message: !input message_running
+      data:
+        tag: !input notification_tag
+        push:
+          interruption-level: time-sensitive
+        actions:
+          - action: KEEP
+            title: !input keep_title
+          - action: OFF
+            title: !input off_title
 
   - wait_for_trigger:
       - platform: event
@@ -128,21 +127,22 @@ action:
     timeout: !input response_timeout
     continue_on_timeout: true
 
+  # 3) Evaluate & act
   - choose:
+      # a) "Keep On" → just cleanup
       - conditions:
           - condition: template
             value_template: "{{ wait.trigger is not none and wait.trigger.platform == 'event' and wait.trigger.event.data.action == 'KEEP' }}"
         sequence:
-          - repeat:
-              for_each: !input notify_devices
-              sequence:
-                - device_id: "{{ repeat.item }}"
-                  domain: mobile_app
-                  type: notify
-                  message: "clear_notification"
-                  data:
-                    tag: !input notification_tag
+          - service: notify.mobile_app
+            target:
+              device_id: !input notify_devices
+            data:
+              message: "clear_notification"
+              data:
+                tag: !input notification_tag
 
+      # b) "Turn Off" → turn off + cleanup
       - conditions:
           - condition: template
             value_template: "{{ wait.trigger is not none and wait.trigger.platform == 'event' and wait.trigger.event.data.action == 'OFF' }}"
@@ -150,50 +150,44 @@ action:
           - service: switch.turn_off
             target:
               entity_id: !input coffee_switch
-          - repeat:
-              for_each: !input notify_devices
-              sequence:
-                - device_id: "{{ repeat.item }}"
-                  domain: mobile_app
-                  type: notify
-                  message: "clear_notification"
-                  data:
-                    tag: !input notification_tag
+          - service: notify.mobile_app
+            target:
+              device_id: !input notify_devices
+            data:
+              message: "clear_notification"
+              data:
+                tag: !input notification_tag
 
+      # c) Switch manually turned off → just cleanup
       - conditions:
           - condition: template
             value_template: "{{ wait.trigger is not none and wait.trigger.platform == 'state' }}"
         sequence:
-          - repeat:
-              for_each: !input notify_devices
-              sequence:
-                - device_id: "{{ repeat.item }}"
-                  domain: mobile_app
-                  type: notify
-                  message: "clear_notification"
-                  data:
-                    tag: !input notification_tag
+          - service: notify.mobile_app
+            target:
+              device_id: !input notify_devices
+            data:
+              message: "clear_notification"
+              data:
+                tag: !input notification_tag
 
+    # d) Timeout without response → turn off, cleanup, send info
     default:
       - service: switch.turn_off
         target:
           entity_id: !input coffee_switch
 
-      - repeat:
-          for_each: !input notify_devices
-          sequence:
-            - device_id: "{{ repeat.item }}"
-              domain: mobile_app
-              type: notify
-              message: "clear_notification"
-              data:
-                tag: !input notification_tag
+      - service: notify.mobile_app
+        target:
+          device_id: !input notify_devices
+        data:
+          message: "clear_notification"
+          data:
+            tag: !input notification_tag
 
-      - repeat:
-          for_each: !input notify_devices
-          sequence:
-            - device_id: "{{ repeat.item }}"
-              domain: mobile_app
-              type: notify
-              title: !input title_auto_off
-              message: !input message_auto_off
+      - service: notify.mobile_app
+        target:
+          device_id: !input notify_devices
+        data:
+          title: !input title_auto_off
+          message: !input message_auto_off
