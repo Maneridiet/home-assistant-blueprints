@@ -1,0 +1,198 @@
+blueprint:
+  name: "Coffee Machine – Reminder after runtime (Android interactive)"
+  description: "Monitors a switch (e.g. coffee machine). If it stays on longer than the configured time (default: 40 minutes), an interactive Android notification is sent. You can then choose: Keep On or Turn Off. If there is no response within the answer time (default: 5 minutes), the switch will be turned off automatically. In all cases the notification will be cleared afterwards."
+  domain: automation
+  source_url: "https://github.com/Maneridiet/home-assistant-blueprints#coffee-prompt"
+  input:
+    coffee_switch:
+      name: "Coffee machine switch"
+      description: "The switch to monitor and turn off if needed."
+      selector:
+        entity:
+          domain: switch
+
+    run_time:
+      name: "Runtime until reminder"
+      description: "How long the switch must stay on before the notification is sent."
+      default: "00:40:00"
+      selector:
+        duration: {}
+
+    response_timeout:
+      name: "Response timeout"
+      description: "How long to wait for a reply before turning the switch off automatically."
+      default: "00:05:00"
+      selector:
+        duration: {}
+
+    notify_devices:
+      name: "Target devices (Android)"
+      description: "One or more Android devices with the Home Assistant Companion App that should receive the push notification."
+      selector:
+        device:
+          multiple: true
+          filter:
+            integration: mobile_app
+            model: "(?i)android"
+
+    notification_tag:
+      name: "Notification tag"
+      description: "Identifier used to clear the notification later. Default is coffee_prompt."
+      default: "coffee_prompt"
+      selector:
+        text: {}
+
+    title_running:
+      name: "Title – reminder"
+      description: "Title of the notification when the coffee machine has been running for too long."
+      default: "Coffee machine has been running for 40 minutes"
+      selector:
+        text: {}
+
+    message_running:
+      name: "Message – reminder"
+      description: "Notification text. Example: Tap to choose: Keep On or Turn Off."
+      default: "Tap to choose: Keep On or Turn Off"
+      selector:
+        text: {}
+
+    title_auto_off:
+      name: "Title – auto turned off"
+      description: "Title of the notification when the switch was turned off automatically."
+      default: "Coffee machine turned off"
+      selector:
+        text: {}
+
+    message_auto_off:
+      name: "Message – auto turned off"
+      description: "Notification text when the switch was turned off due to no response."
+      default: "No response within 5 minutes – turned off automatically."
+      selector:
+        text: {}
+
+    keep_title:
+      name: "Action text – Keep On"
+      description: "Label for the button to keep the coffee machine running."
+      default: "Keep On"
+      selector:
+        text: {}
+
+    off_title:
+      name: "Action text – Turn Off"
+      description: "Label for the button to turn off the coffee machine."
+      default: "Turn Off"
+      selector:
+        text: {}
+
+mode: single
+max_exceeded: silent
+
+trigger:
+  - platform: state
+    entity_id: !input coffee_switch
+    to: "on"
+    for: !input run_time
+
+condition: []
+
+action:
+  # 1) Interactive notification to all selected devices
+  - service: notify.mobile_app
+    target:
+      device_id: !input notify_devices
+    data:
+      title: !input title_running
+      message: !input message_running
+      data:
+        tag: !input notification_tag
+        # Android-specific notification configuration
+        channel: "Coffee Machine Alert"  # Android notification channel
+        importance: high
+        vibrationPattern: "100, 30, 100, 30, 100, 30"
+        sticky: true  # Keep notification until acted upon
+        actions:
+          - action: KEEP
+            title: !input keep_title
+          - action: OFF
+            title: !input off_title
+
+  # 2) Wait for response, manual turn off, or timeout
+  - wait_for_trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: KEEP
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: OFF
+      - platform: state
+        entity_id: !input coffee_switch
+        to: "off"
+    timeout: !input response_timeout
+    continue_on_timeout: true
+
+  # 3) Evaluate & act
+  - choose:
+      # a) "Keep On" → just cleanup
+      - conditions:
+          - condition: template
+            value_template: "{{ wait.trigger is not none and wait.trigger.platform == 'event' and wait.trigger.event.data.action == 'KEEP' }}"
+        sequence:
+          - service: notify.mobile_app
+            target:
+              device_id: !input notify_devices
+            data:
+              message: "clear_notification"
+              data:
+                tag: !input notification_tag
+
+      # b) "Turn Off" → turn off + cleanup
+      - conditions:
+          - condition: template
+            value_template: "{{ wait.trigger is not none and wait.trigger.platform == 'event' and wait.trigger.event.data.action == 'OFF' }}"
+        sequence:
+          - service: switch.turn_off
+            target:
+              entity_id: !input coffee_switch
+          - service: notify.mobile_app
+            target:
+              device_id: !input notify_devices
+            data:
+              message: "clear_notification"
+              data:
+                tag: !input notification_tag
+
+      # c) Switch manually turned off → just cleanup
+      - conditions:
+          - condition: template
+            value_template: "{{ wait.trigger is not none and wait.trigger.platform == 'state' }}"
+        sequence:
+          - service: notify.mobile_app
+            target:
+              device_id: !input notify_devices
+            data:
+              message: "clear_notification"
+              data:
+                tag: !input notification_tag
+
+    # d) Timeout without response → turn off, cleanup, send info
+    default:
+      - service: switch.turn_off
+        target:
+          entity_id: !input coffee_switch
+
+      - service: notify.mobile_app
+        target:
+          device_id: !input notify_devices
+        data:
+          message: "clear_notification"
+          data:
+            tag: !input notification_tag
+
+      - service: notify.mobile_app
+        target:
+          device_id: !input notify_devices
+        data:
+          title: !input title_auto_off
+          message: !input message_auto_off

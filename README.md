@@ -16,7 +16,11 @@ All blueprints are importable with a single click via the **Home Assistant Bluep
 
 ---
 
-## ☕ Coffee Machine Reminder (iOS interactive)
+## ☕ Coffee Machine Reminder
+
+Interactive notification system that monitors your coffee machine and helps prevent it from staying on too long.
+
+### iOS Version 📱
 
 **Languages:** 🇩🇪 Deutsch · 🇬🇧 English  
 **Description:** Sends an interactive iOS push notification if the coffee machine has been on too long. Choose *Keep On* or *Turn Off*. Auto-off after timeout.
@@ -25,6 +29,7 @@ All blueprints are importable with a single click via the **Home Assistant Bluep
 - Configurable runtime before notification (default: 40 minutes)
 - Configurable response timeout (default: 5 minutes)
 - Interactive push notifications with action buttons
+- Time-sensitive notifications support
 - Automatic cleanup of notifications
 - Support for multiple iOS devices
 
@@ -39,6 +44,31 @@ All blueprints are importable with a single click via the **Home Assistant Bluep
 **ENGLISH:**
 
 [![Import EN](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_ios_en.yaml)
+
+### Android Version 🤖
+
+**Languages:** �🇪 Deutsch · �🇬🇧 English  
+**Description:** Android-optimized version with interactive notifications and vibration patterns for better alerts.
+
+**Features:**
+- All core features of the iOS version
+- Android-specific notification channel
+- Custom vibration pattern
+- High-priority notifications
+- Sticky notifications until acted upon
+- Support for multiple Android devices
+
+**Requirements:**
+- Android device(s) with Home Assistant Companion app
+- A switch entity (e.g., coffee machine, smart plug)
+
+**DEUTSCH:**
+
+[![Import DE](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_android_de.yaml)
+
+**ENGLISH:**
+
+[![Import EN](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FManeridiet%2Fhome-assistant-blueprints%2Fmaster%2Fblueprints%2Fautomation%2FManeridiet%2Fcoffee_prompt_android_en.yaml)
 
 ---
 
