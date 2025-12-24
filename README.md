@@ -62,7 +62,15 @@ A comprehensive, feature-rich Home Assistant dashboard that showcases advanced U
 6. Adjust navigation paths to match your dashboard setup
 7. Customize theme and styling to your preferences
 
-**Screenshots:** *Coming soon*
+**Screenshots:**
+
+*Winter Background*
+
+![Winter Background](https://github.com/user-attachments/assets/14defdd1-48f0-412e-8b7b-8b0a818b4353)
+
+*Generic Background*
+
+![Generic Background](https://github.com/user-attachments/assets/28377f8e-981c-4cd2-965f-d8089a7e48a5)
 
 > **Note:** This dashboard uses extensive templating and conditional logic. All personal information (addresses, specific device IDs, names) has been generalized for privacy. The YAML is heavily commented to help you understand and customize each section.
 
