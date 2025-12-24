@@ -1,0 +1,37 @@
+hodor3:
+  ### Main Interface Colors ###
+  primary-color: "#EEC051"
+  accent-color: "#C89E3A"  # Darker variation of golden yellow
+  background-color: "#16120E"
+  primary-background-color: "#16120E"
+  secondary-background-color: "#4B4330"
+  card-background-color: "#16120E"
+  app-header-background-color: "#16120E"
+
+  ### Text Colors ###
+  primary-text-color: "#E5DFC7"
+  secondary-text-color: "#E5DFC7"
+  text-primary-color: "#E5DFC7"
+  disabled-text-color: "#4B4330"
+
+  ### Divider and Borders ###
+  divider-color: "#2E302F"  # Slightly darker gray for dividers
+
+  ### Button Colors ###
+  paper-button-ink-color: "#EEC051"
+  paper-button-background-color: "#828884"
+  paper-button-color: "#E5DFC7"
+
+  ### Sidebar Colors ###
+  sidebar-background-color: "#16120E"
+  sidebar-icon-color: "#EEC051"
+  sidebar-text-color: "#E5DFC7"
+
+  ### Header Colors ###
+  header-color: "#828884"
+
+  ### Other ###
+  paper-item-icon-active-color: "#EEC051"
+  paper-item-icon-color: "#E5DFC7"
+  paper-input-bg-color: "#16120E"
+  paper-input-color: "#E5DFC7"
