@@ -1,0 +1,872 @@
+# ============================================================================
+# Maneridiet's Homescreen Dashboard
+# ============================================================================
+# A comprehensive Home Assistant dashboard featuring:
+# - Real-time energy monitoring with solar and heat pump integration
+# - Weather warnings and forecasts
+# - Smart home status indicators (waste collection, vacuum, washing machine)
+# - Media player controls
+# - Pet tracking
+# - Climate monitoring
+#
+# Custom Cards Required:
+# - custom:digital-clock
+# - custom:mushroom-chips-card
+# - custom:mini-media-player
+# - custom:button-card
+# - custom:power-flow-card-plus
+# - custom:navbar-card
+# - card_mod
+#
+# Note: Replace all entity IDs with your own entities
+# ============================================================================
+
+type: sections
+max_columns: 3
+title: Info
+path: info
+
+sections:
+  # ==========================================================================
+  # SECTION 1: Info & Status Bar
+  # ==========================================================================
+  - type: grid
+    cards:
+      # ----------------------------------------------------------------------
+      # Digital Clock Display
+      # ----------------------------------------------------------------------
+      - type: custom:digital-clock
+        locale: de  # Change to your locale (en, de, fr, etc.)
+        card_mod:
+          style: |
+            ha-card {
+              transform: scale(2.5);
+              transform-origin: top;
+              background: none;
+              box-shadow: none;
+              border: none;
+            }
+
+      # ----------------------------------------------------------------------
+      # Spacer Card
+      # ----------------------------------------------------------------------
+      - type: markdown
+        content: |-
+          ‎ ‎ ‎ ‎ 
+          ‎ 
+          ‎ 
+
+
+          ‎ 
+          ‎ 
+          ‎ ‎ 
+          ‎ 
+          ‎ 
+          ‎
+        card_mod:
+          style: |
+            ha-card {
+              transform: scale(1.0);
+              transform-origin: top left;
+              background: none;
+              box-shadow: none;
+              border: none;
+            }
+        grid_options:
+          columns: 12
+          rows: 2
+
+      # ----------------------------------------------------------------------
+      # Smart Status Chips
+      # Displays important household notifications and warnings
+      # ----------------------------------------------------------------------
+      - type: custom:mushroom-chips-card
+        alignment: center
+        chips:
+          # Waste collection reminder - General waste (today)
+          - type: conditional
+            conditions:
+              - condition: numeric_state
+                entity: sensor.general_waste  # Replace with your waste sensor
+                below: 0.8
+            chip:
+              type: entity
+              entity: sensor.general_waste
+              icon: mdi:trash-can
+              icon_color: red
+              content_info: name
+              name: General Waste Today
+
+          # Waste collection reminder - General waste (tomorrow)
+          - type: conditional
+            conditions:
+              - condition: numeric_state
+                entity: sensor.general_waste
+                above: 0.9
+                below: 1.9
+            chip:
+              type: entity
+              entity: sensor.general_waste
+              icon: mdi:trash-can
+              content_info: name
+              name: General Waste Tomorrow
+
+          # Waste collection reminder - Organic waste (today)
+          - type: conditional
+            conditions:
+              - condition: numeric_state
+                entity: sensor.organic_waste  # Replace with your waste sensor
+                below: 0.8
+            chip:
+              type: entity
+              entity: sensor.organic_waste
+              icon: mdi:leaf
+              icon_color: green
+              content_info: name
+              name: Organic Waste Today
+
+          # Waste collection reminder - Organic waste (tomorrow)
+          - type: conditional
+            conditions:
+              - condition: numeric_state
+                entity: sensor.organic_waste
+                above: 0.9
+                below: 1.9
+            chip:
+              type: entity
+              entity: sensor.organic_waste
+              icon: mdi:leaf
+              content_info: name
+              name: Organic Waste Tomorrow
+
+          # Weather warning indicator (DWD or your weather service)
+          - type: conditional
+            conditions:
+              - condition: numeric_state
+                entity: sensor.weather_warning_level  # Replace with your weather warning sensor
+                above: 0.5
+            chip:
+              type: template
+              entity: sensor.weather_warning_level
+              icon: mdi:weather-lightning
+              badge: >-
+                {{ state_attr('sensor.weather_warning_level', 'warning_count') }}
+              content: >-
+                {% set s = 'sensor.weather_warning_level' %}
+                {% set n = state_attr(s, 'warning_count')|int(0) %}
+                {% set ns = namespace(names=[]) %}
+                {% for i in range(1, n + 1) %}
+                  {% set name = state_attr(s, 'warning_' ~ i ~ '_name') %}
+                  {% if name %}{% set ns.names = ns.names + [name] %}{% endif %}
+                {% endfor %}
+                {{ ns.names | join(' • ') or 'Weather Warning' }}
+              icon_color: >-
+                {% set s = 'sensor.weather_warning_level' %}
+                {% set n = state_attr(s, 'warning_count')|int(0) %}
+                {% set max_level = 0 %}
+                {% for i in range(1, n + 1) %}
+                  {% set lvl = state_attr(s, 'warning_' ~ i ~ '_level')|int(0) %}
+                  {% if lvl > max_level %}{% set max_level = lvl %}{% endif %}
+                {% endfor %}
+                {% if max_level >= 2 %}red{% elif max_level == 1 %}yellow{% else %}{% endif %}
+              tap_action:
+                action: perform-action
+                perform_action: input_boolean.toggle
+                target:
+                  entity_id: input_boolean.display_weather_warning  # Replace with your toggle
+
+          # System temperature alert
+          - type: conditional
+            conditions:
+              - condition: numeric_state
+                entity: sensor.system_monitor_processor_temperature  # Replace with your temp sensor
+                above: 60
+            chip:
+              type: entity
+              entity: sensor.system_monitor_processor_temperature
+              icon: mdi:thermometer-alert
+              icon_color: red
+              content_info: name
+              name: System Temperature
+
+          # Pet litter box counter
+          - type: conditional
+            conditions:
+              - condition: numeric_state
+                entity: counter.litter_counter  # Replace with your counter
+                above: 3
+            chip:
+              type: entity
+              entity: counter.litter_counter
+              name: Litter Box
+              content_info: name
+              tap_action:
+                action: call-service
+                service: counter.reset
+                target:
+                  entity_id: counter.litter_counter
+
+          # Washing machine running timer
+          - type: conditional
+            conditions:
+              - condition: state
+                entity: timer.washing_machine  # Replace with your timer
+                state: active
+            chip:
+              type: template
+              entity: timer.washing_machine
+              icon: mdi:washing-machine
+              icon_color: blue
+              content: >
+                {% set rem = states('sensor.washing_machine_timer_remaining') | int %}
+                {% if rem > 0 %}
+                  {% set h = rem // 3600 %}
+                  {% set m = (rem % 3600) // 60 %}
+                  {% set s = rem % 60 %}
+                  {{ '%02d:%02d:%02d' | format(h, m, s) }}
+                {% else %}
+                  Idle
+                {% endif %}
+              tap_action:
+                action: more-info
+
+          # Washing machine finished notification
+          - type: conditional
+            conditions:
+              - condition: state
+                entity: timer.washing_machine_finished  # Replace with your timer
+                state: active
+            chip:
+              type: entity
+              entity: timer.washing_machine_finished
+              content_info: name
+              icon_color: green
+              tap_action:
+                action: none
+              hold_action:
+                action: none
+              double_tap_action:
+                action: none
+              name: Finished!
+              icon: mdi:washing-machine
+
+        card_mod:
+          style: |
+            ha-card {
+              transform: scale(1.3);
+              transform-origin: bottom;
+              background: none;
+              box-shadow: none;
+              border: none;
+            }
+
+      # ----------------------------------------------------------------------
+      # Media Player Mini Card
+      # Shows when media is playing
+      # ----------------------------------------------------------------------
+      - type: custom:mini-media-player
+        entity: media_player.living_room  # Replace with your media player
+        icon: mdi:spotify
+        artwork: none
+        tap_action:
+          action: navigate
+          navigation_path: /media
+        hide:
+          volume: false
+          source: true
+          power: true
+          icon: true
+          name: true
+          mute: true
+          progress: true
+        max_volume: 20
+        volume_stateless: true
+        toggle_power: true
+        group: true
+        info: short
+        grid_options:
+          columns: 12
+          rows: 2
+        card_mod:
+          style: |
+            :host {
+              --mini-media-player-base-color: var(--primary-text-color);
+              --mini-media-player-accent-color: var(--primary-text-color);
+              --mini-media-player-scale: 1.5;
+            }
+        visibility:
+          - condition: state
+            entity: media_player.living_room
+            state: playing
+
+      # ----------------------------------------------------------------------
+      # Robot Vacuum Return Home Button
+      # Shows when vacuum is not docked
+      # ----------------------------------------------------------------------
+      - type: conditional
+        conditions:
+          - entity: vacuum.robot_vacuum  # Replace with your vacuum
+            state_not: docked
+        card:
+          type: custom:button-card
+          entity: vacuum.robot_vacuum
+          show_icon: false
+          show_name: false
+          show_state: false
+          tap_action:
+            action: perform-action
+            perform_action: vacuum.return_to_base
+            target:
+              device_id: YOUR_VACUUM_DEVICE_ID  # Replace with your device ID
+          custom_fields:
+            allinone: |
+              [[[
+                const state = states['vacuum.robot_vacuum']?.state ?? 'unknown';
+                return `
+                  <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                  ">
+                    <ha-icon icon="mdi:robot-vacuum"
+                             style="width: 32px; height: 32px; margin-right: 6px;">
+                    </ha-icon>
+                    <span style="font-size: 1.5em; font-weight: 500;">
+                      Robot Go Home (${state})
+                    </span>
+                  </div>
+                `;
+              ]]]
+          styles:
+            card:
+              - background: transparent
+              - border: none
+              - box-shadow: none
+              - padding: 0px
+            grid:
+              - grid-template-areas: '"allinone"'
+              - grid-template-columns: 1fr
+              - grid-template-rows: min-content
+            custom_fields:
+              allinone:
+                - justify-self: center
+                - align-self: center
+
+      # ----------------------------------------------------------------------
+      # Voice Assistant Button
+      # ----------------------------------------------------------------------
+      - show_name: true
+        show_icon: false
+        type: button
+        theme: Hodor3  # Change to your theme
+        tap_action:
+          action: assist
+          pipeline_id: YOUR_ASSIST_PIPELINE_ID  # Replace with your pipeline ID
+          start_listening: true
+        hold_action:
+          action: assist
+          pipeline_id: YOUR_ASSIST_PIPELINE_ID
+          start_listening: true
+        icon: mdi:microphone-outline
+        card_mod:
+          style: |
+            ha-card {
+              transform: scale(1.0);
+              transform-origin: top;
+              background: none;
+              box-shadow: none;
+              border: none;
+            }
+        grid_options:
+          columns: 12
+          rows: 2
+
+      # ----------------------------------------------------------------------
+      # Weather Warnings Detail Card (DWD or similar service)
+      # Shows detailed weather warnings when toggle is on
+      # ----------------------------------------------------------------------
+      - type: markdown
+        title: Weather Warnings
+        content: >-
+          {# Display current and advance weather warnings #}
+          {% set sensor_warning_current = "sensor.weather_warning_current" %}
+          {% set sensor_warning_advance = "sensor.weather_warning_advance" %}
+          
+          {% set current_region_name = state_attr(sensor_warning_current, "region_name") %}
+          {% set current_count = state_attr(sensor_warning_current, "warning_count") %}
+          {% set advance_count = state_attr(sensor_warning_advance, "warning_count") %}
+          
+          {% if ((current_count == 0 or current_count == None) and (advance_count == 0 or advance_count == None)) %}
+            **<font color=#c5e566>No Warnings</font>**
+          {% else %}
+            {# Current warnings #}
+            {% for i in range(current_count) %}
+              {% set headline = state_attr(sensor_warning_current, "warning_" ~ loop.index ~ "_headline") %}
+              {% set description = state_attr(sensor_warning_current, "warning_" ~ loop.index ~ "_description") %}
+              {% set instruction = state_attr(sensor_warning_current, "warning_" ~ loop.index ~ "_instruction") %}
+              {% set level = state_attr(sensor_warning_current, "warning_" ~ loop.index ~ "_level") %}
+              {% set time_start = state_attr(sensor_warning_current, "warning_" ~ loop.index ~ "_start") %}
+              {% set weekday_start = as_timestamp(time_start) | timestamp_custom("%w", True) | int %}
+              {% set time_end = state_attr(sensor_warning_current, "warning_" ~ loop.index ~ "_end") %}
+              {% set weekday_end = as_timestamp(time_end) | timestamp_custom("%w", True) | int %}
+              {% set color = state_attr(sensor_warning_current, "warning_" ~ loop.index ~ "_color") %}
+              
+              **<font color={{ color }}>{{ headline }}</font>**     
+              **{{ ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][weekday_start-1] ~ ", " ~ as_timestamp(time_start) | timestamp_custom('%H:%M') ~ " - " ~ ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][weekday_end-1] ~ ", " ~ as_timestamp(time_end) | timestamp_custom('%H:%M') }}**
+              *{{ description|trim }}*
+              {% if not loop.last %}***{% endif %}
+            {% endfor %}
+            
+            {% if ((current_count != 0) and (advance_count != 0)) %}***{% endif %}
+            
+            {# Advance warnings #}
+            {% for i in range(advance_count) %}
+              {% set headline = state_attr(sensor_warning_advance, "warning_" ~ loop.index ~ "_headline") %}
+              {% set description = state_attr(sensor_warning_advance, "warning_" ~ loop.index ~ "_description") %}
+              {% set instruction = state_attr(sensor_warning_advance, "warning_" ~ loop.index ~ "_instruction") %}
+              {% set level = state_attr(sensor_warning_advance, "warning_" ~ loop.index ~ "_level") %}
+              {% set time_start = state_attr(sensor_warning_advance, "warning_" ~ loop.index ~ "_start") %}
+              {% set weekday_start = as_timestamp(time_start) | timestamp_custom("%w", True) | int %}
+              {% set time_end = state_attr(sensor_warning_advance, "warning_" ~ loop.index ~ "_end") %}
+              {% set weekday_end = as_timestamp(time_end) | timestamp_custom("%w", True) | int %}
+              {% set color = state_attr(sensor_warning_advance, "warning_" ~ loop.index ~ "_color") %}
+              
+              **<font color={{ color }}>{{ headline }}</font>**
+              **{{ ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][weekday_start-1] ~ ", " ~ as_timestamp(time_start) | timestamp_custom('%H:%M') ~ " - " ~ ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][weekday_end-1] ~ ", " ~ as_timestamp(time_end) | timestamp_custom('%H:%M') }}**
+              *{{ description|trim }}*
+              {% if (instruction|trim != "None") %}
+                ****{{ instruction|trim }}****
+              {% endif %}
+              {% if not loop.last %}***{% endif %}
+            {% endfor %}
+          {% endif %}
+        text_only: true
+        visibility:
+          - condition: state
+            entity: input_boolean.display_weather_warning
+            state: "on"
+
+      # ----------------------------------------------------------------------
+      # Spacer - Visible when media player is not playing
+      # ----------------------------------------------------------------------
+      - type: markdown
+        content: |+
+
+        grid_options:
+          columns: 12
+          rows: 3
+        card_mod:
+          style: |
+            ha-card {
+              transform: scale(1.0);
+              transform-origin: top left;
+              background: none;
+              box-shadow: none;
+              border: none;
+            }
+        visibility:
+          - condition: state
+            entity: media_player.living_room
+            state_not: playing
+
+      # ----------------------------------------------------------------------
+      # Spacer Cards
+      # ----------------------------------------------------------------------
+      - type: markdown
+        content: |-
+          ‎ ‎ ‎ ‎ 
+          ‎ 
+          ‎ 
+
+
+          ‎ 
+          ‎ 
+          ‎ ‎ 
+          ‎ 
+          ‎ 
+          ‎
+        card_mod:
+          style: |
+            ha-card {
+              transform: scale(1.0);
+              transform-origin: top left;
+              background: none;
+              box-shadow: none;
+              border: none;
+            }
+        grid_options:
+          columns: 9
+          rows: 3
+
+      # ----------------------------------------------------------------------
+      # Waste Collection Reminder Image
+      # Shows when waste collection is soon (within 2 days)
+      # ----------------------------------------------------------------------
+      - type: picture-elements
+        elements: []
+        grid_options:
+          columns: 3
+          rows: auto
+        image: /api/image/serve/YOUR_WASTE_IMAGE_ID/512x512  # Replace with your image
+        card_mod:
+          style: |
+            ha-card {
+              transform: scale(1.0);
+              transform-origin: top left;
+              background: none;
+              box-shadow: none;
+              border:none
+            }
+        visibility:
+          - condition: or
+            conditions:
+              - condition: numeric_state
+                entity: sensor.organic_waste
+                below: 2
+              - condition: numeric_state
+                entity: sensor.general_waste
+                below: 2
+
+  # ==========================================================================
+  # SECTION 2: Energy Flow & Navigation
+  # ==========================================================================
+  - type: grid
+    cards:
+      # ----------------------------------------------------------------------
+      # Spacer
+      # ----------------------------------------------------------------------
+      - type: markdown
+        content: |-
+          ‎ ‎ ‎ ‎ 
+          ‎ 
+          ‎ 
+
+
+          ‎ 
+          ‎ 
+          ‎ ‎ 
+          ‎ 
+          ‎ 
+          ‎
+        card_mod:
+          style: |
+            ha-card {
+              transform: scale(1.0);
+              transform-origin: top left;
+              background: none;
+              box-shadow: none;
+              border: none;
+            }
+        grid_options:
+          columns: 12
+          rows: 3
+
+      # ----------------------------------------------------------------------
+      # Power Flow Card
+      # Shows real-time energy production, consumption, and distribution
+      # Requires: custom:power-flow-card-plus
+      # ----------------------------------------------------------------------
+      - type: custom:power-flow-card-plus
+        entities:
+          # Solar production
+          solar:
+            entity: sensor.solar_power_production  # Replace with your solar sensor
+            use_metadata: false
+          
+          # Individual consumers
+          individual:
+            # Heat pump monitoring
+            - entity: sensor.heat_pump_power  # Replace with your heat pump sensor
+              name: Heat Pump
+              icon: ""
+              color_icon: true
+              display_zero_state: true
+              show_direction: false
+              display_zero: true
+              color_value: false
+              tap_action:
+                action: navigate
+                navigation_path: /dashboard-your-name/energyusage
+              secondary_info:
+                entity: sensor.heat_pump_mode  # Replace with your sensor
+                tap_action:
+                  action: navigate
+                  navigation_path: /dashboard-your-name/energyusage
+                template: "{{ states('sensor.heat_pump_mode') }}"
+                display_zero: false
+          
+          # Grid connection
+          grid:
+            entity:
+              consumption: sensor.grid_power_consumption  # Replace with your grid sensor
+              production: sensor.grid_power_production    # Replace with your grid sensor
+            color_value: false
+            invert_state: false
+            secondary_info:
+              template: >
+                {{ ((states('sensor.electricity_price') | float(0) * 100) | round(0)) ~ ' cent' }}
+              icon: ""
+              decimals: 1
+              accept_negative: true
+              display_zero_tolerance: 0
+              tap_action:
+                action: more-info
+              entity: sensor.electricity_price  # Replace with your price sensor
+          
+          # Home consumption
+          home:
+            subtract_individual: false
+            hide: false
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-your-name/energyusage
+            name: Home
+        
+        # Display settings
+        clickable_entities: true
+        display_zero_lines:
+          mode: show
+          transparency: 50
+          grey_color:
+            - 189
+            - 189
+            - 189
+        use_new_flow_rate_model: true
+        w_decimals: 0
+        kw_decimals: 1
+        min_flow_rate: 0.75
+        max_flow_rate: 6
+        max_expected_power: 2000
+        min_expected_power: 0.01
+        watt_threshold: 1000
+        transparency_zero_lines: 0
+        sort_individual_devices: false
+        dashboard_link: ""
+        card_mod:
+          style: |
+            ha-card {
+              transform: scale(1.9);
+              transform-origin: top left;
+              background: none;
+              box-shadow: none;
+              border: none;
+            }
+            .grid .secondary-info {
+              font-size: 0.7em !important;
+              line-height: 1.1;
+            }
+
+      # ----------------------------------------------------------------------
+      # Navigation Bar
+      # Main navigation between dashboard views
+      # ----------------------------------------------------------------------
+      - type: custom:navbar-card
+        routes:
+          - url: /dashboard-your-name/info
+            icon: mdi:information
+            label: info
+          - url: /dashboard-your-name/Home
+            icon: mdi:home
+            label: Home
+          - url: /dashboard-your-name/media
+            icon: mdi:music
+            label: Music
+          - url: /dashboard-your-name/weather
+            icon: mdi:temperature-celsius
+            label: Climate
+          - url: /dashboard-your-name/pets
+            icon: mdi:paw
+            label: Pets
+          - url: /dashboard-your-name/cam
+            icon: mdi:cctv
+            label: Cameras
+
+      # ----------------------------------------------------------------------
+      # Spacer Cards
+      # ----------------------------------------------------------------------
+      - type: custom:mushroom-empty-card
+        grid_options:
+          columns: 6
+          rows: 5
+
+      - type: custom:mushroom-empty-card
+        grid_options:
+          columns: 3
+          rows: 3
+
+      # ----------------------------------------------------------------------
+      # Pet Detector Image
+      # Shows when pet is detected at camera
+      # ----------------------------------------------------------------------
+      - type: conditional
+        conditions:
+          - condition: state
+            entity: timer.pet_detect_timer  # Replace with your timer
+            state: active
+        card:
+          type: picture-elements
+          elements: []
+          image: /api/image/serve/YOUR_PET_IMAGE_ID/512x512  # Replace with your image
+          card_mod:
+            style: |
+              ha-card {
+                transform: scale(0.65);
+                transform-origin: top left;
+                background: none;
+                box-shadow: none;
+                border:none
+              }
+        grid_options:
+          columns: 4
+          rows: auto
+
+  # ==========================================================================
+  # SECTION 3: Weather & Pet Status
+  # ==========================================================================
+  - type: grid
+    cards:
+      # ----------------------------------------------------------------------
+      # Weather Summary Card
+      # Shows current temperature and humidity
+      # ----------------------------------------------------------------------
+      - type: custom:button-card
+        entity: weather.forecast_home  # Replace with your weather entity
+        show_icon: false
+        show_name: false
+        show_state: false
+        custom_fields:
+          weather_info: |
+            [[[
+              const weather = states['weather.forecast_home'];
+              const tempSensor = states['sensor.outdoor_temperature'];  // Replace with your temp sensor
+              if (!weather || !tempSensor) return 'Unavailable';
+              
+              const condition = weather.state;
+              const temp = tempSensor.state;
+              const humidity = weather.attributes.humidity;
+              
+              // Weather icon mapping
+              const iconMap = {
+                'clear-night': 'weather-night',
+                'cloudy': 'weather-cloudy',
+                'exceptional': 'alert-circle-outline',
+                'fog': 'weather-fog',
+                'hail': 'weather-hail',
+                'lightning': 'weather-lightning',
+                'lightning-rainy': 'weather-lightning-rainy',
+                'partlycloudy': 'weather-partly-cloudy',
+                'pouring': 'weather-pouring',
+                'rainy': 'weather-rainy',
+                'snowy': 'weather-snowy',
+                'snowy-rainy': 'weather-snowy-rainy',
+                'sunny': 'weather-sunny',
+                'windy': 'weather-windy',
+                'windy-variant': 'weather-windy-variant'
+              };
+              
+              const icon = iconMap[condition] || 'weather-cloudy';
+              
+              return `<div style="display: flex; align-items: center;">
+                        <ha-icon icon="mdi:${icon}" style="width: 36px; height: 36px; margin-right: 12px;"></ha-icon>
+                        <div style="font-size: 1.8em; font-weight: bold;">${temp}° | ${humidity}%</div>
+                      </div>`;
+            ]]]
+        styles:
+          card:
+            - background: transparent
+            - border: none
+            - box-shadow: none
+            - padding: 20
+          custom_fields:
+            weather_info:
+              - justify-self: start
+
+      # ----------------------------------------------------------------------
+      # Spacer Cards
+      # ----------------------------------------------------------------------
+      - type: custom:mushroom-empty-card
+        grid_options:
+          columns: 12
+          rows: 4
+
+      - type: custom:mushroom-empty-card
+        grid_options:
+          columns: 6
+          rows: 5
+
+      - type: custom:mushroom-empty-card
+        grid_options:
+          columns: 6
+          rows: 7
+
+      # ----------------------------------------------------------------------
+      # Pet Location Indicator
+      # Shows pet image when pet tracker shows "home"
+      # ----------------------------------------------------------------------
+      - type: conditional
+        conditions:
+          - condition: state
+            entity: device_tracker.pet_tracker  # Replace with your pet tracker
+            state: home
+        card:
+          type: picture-elements
+          elements: []
+          image: /api/image/serve/YOUR_PET_HOME_IMAGE_ID/512x512  # Replace with your image
+          card_mod:
+            style: |
+              ha-card {
+                transform: scale(0.9);
+                transform-origin: top left;
+                background: none;
+                box-shadow: none;
+                border:none
+              }
+        grid_options:
+          columns: 4
+          rows: auto
+
+      # ----------------------------------------------------------------------
+      # Indoor Climate Sensor
+      # Shows indoor temperature and humidity
+      # ----------------------------------------------------------------------
+      - type: custom:button-card
+        show_icon: false
+        show_name: false
+        show_state: false
+        tap_action:
+          action: more-info
+          entity: sensor.indoor_temperature  # Replace with your indoor temp sensor
+        custom_fields:
+          allinone: |
+            [[[
+              const temp = states['sensor.indoor_temperature']?.state || 'N/A';
+              const hum = states['sensor.indoor_humidity']?.state || 'N/A';  // Replace with your humidity sensor
+              return `<div style="display: flex; align-items: center;">
+                        <ha-icon icon="mdi:home-thermometer-outline" style="width: 42px; height: 42px; margin-right: 12px;"></ha-icon>
+                        <div style="font-size: 1.8em; font-weight: bold;">${temp}°  |  ${hum}%</div>
+                      </div>`;
+            ]]]
+        styles:
+          card:
+            - background: transparent
+            - border: none
+            - box-shadow: none
+            - padding: 0
+          custom_fields:
+            allinone:
+              - justify-self: start
+
+# ============================================================================
+# Dashboard Settings
+# ============================================================================
+cards: []
+background:
+  opacity: 44
+  alignment: center
+  size: cover
+  repeat: no-repeat
+  attachment: fixed
+  image: /api/image/serve/YOUR_BACKGROUND_IMAGE_ID/original  # Replace with your background image
+theme: Hodor3  # Change to your theme
+icon: mdi:information

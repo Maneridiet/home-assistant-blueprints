@@ -1,6 +1,6 @@
-# Maneridiet's Home Assistant Blueprints
+# Maneridiet's Home Assistant Blueprints & Dashboards
 
-A growing collection of reusable [Home Assistant](https://www.home-assistant.io) blueprints (automations).  
+A growing collection of reusable [Home Assistant](https://www.home-assistant.io) blueprints (automations) and dashboard configurations.  
 All blueprints are importable with a single click via the **Home Assistant Blueprint Import** feature.
 
 ---
@@ -13,6 +13,58 @@ All blueprints are importable with a single click via the **Home Assistant Bluep
 
 > Each blueprint has its own description, inputs, and changelog.  
 > For support and discussion, check the linked [Community Forum](https://community.home-assistant.io/c/blueprints-exchange/53).
+
+---
+
+## 📊 Dashboards
+
+Custom Home Assistant dashboard configurations for inspiration and reuse.
+
+### 🏠 Maneridiet's Homescreen
+
+A comprehensive, feature-rich Home Assistant dashboard that showcases advanced UI design and integration capabilities.
+
+**File:** [`dashboards/maneridiets_homescreen.yaml`](./dashboards/maneridiets_homescreen.yaml)
+
+**Features:**
+- **Energy Monitoring**: Real-time power flow visualization with solar production, grid consumption, and individual device tracking (heat pump, etc.)
+- **Weather Integration**: Live weather warnings with detailed alerts from weather services (DWD or similar)
+- **Smart Status Chips**: Dynamic notification system for waste collection reminders, system alerts, weather warnings, and appliance status
+- **Media Controls**: Integrated media player with conditional visibility
+- **Pet Tracking**: Visual indicators for pet location and activity detection
+- **Climate Monitoring**: Indoor and outdoor temperature/humidity displays with weather condition icons
+- **Appliance Monitoring**: Washing machine timer, robot vacuum control, and litter box counter
+- **Voice Assistant**: Quick access to Home Assistant voice commands
+- **Navigation Bar**: Seamless navigation between dashboard views
+
+**Custom Cards Required:**
+- `custom:digital-clock` - Stylish clock display
+- `custom:mushroom-chips-card` - Smart status indicators
+- `custom:mini-media-player` - Media player controls
+- `custom:button-card` - Custom interactive buttons
+- `custom:power-flow-card-plus` - Energy flow visualization
+- `custom:navbar-card` - Dashboard navigation
+- `card_mod` - Card styling and customization
+
+**Setup Instructions:**
+1. Install all required custom cards via HACS (Home Assistant Community Store)
+2. Copy the YAML configuration to your Home Assistant dashboard
+3. Replace placeholder entity IDs with your own entities:
+   - Weather sensors (`weather.forecast_home`, `sensor.outdoor_temperature`, etc.)
+   - Power/energy sensors (`sensor.solar_power_production`, `sensor.grid_power_consumption`, etc.)
+   - Waste collection sensors (`sensor.general_waste`, `sensor.organic_waste`)
+   - Device trackers (`device_tracker.pet_tracker`)
+   - Media players (`media_player.living_room`)
+   - Climate sensors (`sensor.indoor_temperature`, `sensor.indoor_humidity`)
+   - Appliance entities (`vacuum.robot_vacuum`, `timer.washing_machine`, etc.)
+4. Replace image IDs with your own uploaded images
+5. Update device IDs for service calls
+6. Adjust navigation paths to match your dashboard setup
+7. Customize theme and styling to your preferences
+
+**Screenshots:** *Coming soon*
+
+> **Note:** This dashboard uses extensive templating and conditional logic. All personal information (addresses, specific device IDs, names) has been generalized for privacy. The YAML is heavily commented to help you understand and customize each section.
 
 ---
 
