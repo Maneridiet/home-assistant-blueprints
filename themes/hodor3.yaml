@@ -19,7 +19,7 @@ hodor3:
 
   ### Button Colors ###
   paper-button-ink-color: "#EEC051"
-  paper-button-background-color: "#828884"
+  paper-button-background-color: "#828884"  # Neutral gray for button backgrounds
   paper-button-color: "#E5DFC7"
 
   ### Sidebar Colors ###
@@ -28,7 +28,7 @@ hodor3:
   sidebar-text-color: "#E5DFC7"
 
   ### Header Colors ###
-  header-color: "#828884"
+  header-color: "#828884"  # Neutral gray for headers
 
   ### Other ###
   paper-item-icon-active-color: "#EEC051"
