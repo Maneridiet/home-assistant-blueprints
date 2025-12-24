@@ -397,7 +397,7 @@ sections:
           {% set current_count = state_attr(sensor_warning_current, "warning_count") %}
           {% set advance_count = state_attr(sensor_warning_advance, "warning_count") %}
           
-          {% if ((current_count == 0 or current_count == None) and (advance_count == 0 or advance_count == None)) %}
+          {% if ((current_count == 0 or current_count is none) and (advance_count == 0 or advance_count is none)) %}
             **<font color=#c5e566>No Warnings</font>**
           {% else %}
             {# Current warnings #}
@@ -435,7 +435,7 @@ sections:
               **<font color={{ color }}>{{ headline }}</font>**
               **{{ ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][weekday_start-1] ~ ", " ~ as_timestamp(time_start) | timestamp_custom('%H:%M') ~ " - " ~ ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][weekday_end-1] ~ ", " ~ as_timestamp(time_end) | timestamp_custom('%H:%M') }}**
               *{{ description|trim }}*
-              {% if (instruction|trim != "None") %}
+              {% if instruction and (instruction|trim) %}
                 ****{{ instruction|trim }}****
               {% endif %}
               {% if not loop.last %}***{% endif %}
@@ -516,7 +516,7 @@ sections:
               transform-origin: top left;
               background: none;
               box-shadow: none;
-              border:none
+              border: none
             }
         visibility:
           - condition: or
@@ -715,7 +715,7 @@ sections:
                 transform-origin: top left;
                 background: none;
                 box-shadow: none;
-                border:none
+                border: none
               }
         grid_options:
           columns: 4
@@ -820,7 +820,7 @@ sections:
                 transform-origin: top left;
                 background: none;
                 box-shadow: none;
-                border:none
+                border: none
               }
         grid_options:
           columns: 4
