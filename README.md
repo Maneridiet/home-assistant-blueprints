@@ -1,6 +1,6 @@
 # Maneridiet's Home Assistant Blueprints & Dashboards
 
-A growing collection of reusable [Home Assistant](https://www.home-assistant.io) blueprints (automations) and dashboard configurations.  
+A growing collection of reusable [Home Assistant](https://www.home-assistant.io) blueprints (automations), dashboard configurations, and themes.  
 All blueprints are importable with a single click via the **Home Assistant Blueprint Import** feature.
 
 ---
@@ -65,6 +65,40 @@ A comprehensive, feature-rich Home Assistant dashboard that showcases advanced U
 **Screenshots:** *Coming soon*
 
 > **Note:** This dashboard uses extensive templating and conditional logic. All personal information (addresses, specific device IDs, names) has been generalized for privacy. The YAML is heavily commented to help you understand and customize each section.
+
+---
+
+## 🎨 Themes
+
+Custom Home Assistant themes to enhance your dashboard's visual appearance.
+
+### Hodor3 Theme
+
+A dark, elegant theme featuring golden yellow accents on a rich brown/black background. Perfect for a sophisticated, warm aesthetic.
+
+**File:** [`themes/hodor3.yaml`](./themes/hodor3.yaml)
+
+**Color Palette:**
+- **Primary Color**: Golden Yellow (`#EEC051`)
+- **Accent Color**: Darker Golden Yellow (`#C89E3A`)
+- **Background**: Deep Brown/Black (`#16120E`)
+- **Text**: Warm Beige (`#E5DFC7`)
+- **Secondary Background**: Brown (`#4B4330`)
+
+**Setup Instructions:**
+1. Copy the contents of `themes/hodor3.yaml`
+2. Add it to your Home Assistant `themes` folder (typically `config/themes/`)
+3. If you don't have a `themes` folder, create one in your Home Assistant configuration directory
+4. Add the following to your `configuration.yaml` if not already present:
+   ```yaml
+   frontend:
+     themes: !include_dir_merge_named themes/
+   ```
+5. Restart Home Assistant
+6. Go to your profile (click your username in the bottom left)
+7. Select "hodor3" from the Theme dropdown
+
+> **Tip:** This theme pairs beautifully with the Maneridiet's Homescreen dashboard for a cohesive, polished look.
 
 ---
 
