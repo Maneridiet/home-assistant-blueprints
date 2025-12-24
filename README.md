@@ -66,11 +66,11 @@ A comprehensive, feature-rich Home Assistant dashboard that showcases advanced U
 
 *Winter Background*
 
-![Winter Background](https://github.com/user-attachments/assets/14defdd1-48f0-412e-8b7b-8b0a818b4353)
+![Dashboard showing energy flow visualization with solar panels, grid connection, heat pump, and home consumption on a winter snowy background](https://github.com/user-attachments/assets/14defdd1-48f0-412e-8b7b-8b0a818b4353)
 
 *Generic Background*
 
-![Generic Background](https://github.com/user-attachments/assets/28377f8e-981c-4cd2-965f-d8089a7e48a5)
+![Dashboard displaying power monitoring with 310W solar production, 1.2kW heat pump, 770W grid export, and 1.1kW home usage on a generic house background](https://github.com/user-attachments/assets/28377f8e-981c-4cd2-965f-d8089a7e48a5)
 
 > **Note:** This dashboard uses extensive templating and conditional logic. All personal information (addresses, specific device IDs, names) has been generalized for privacy. The YAML is heavily commented to help you understand and customize each section.
 
